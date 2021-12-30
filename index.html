@@ -12,10 +12,10 @@
     <script id="floGlobals">
         /* Constants for FLO blockchain operations !!Make sure to add this at begining!! */
         const floGlobals = {
-            //Required for all
+            // Required for all
             blockchain: "FLO",
 
-            //Required for blockchain API operators
+            // Required for blockchain API operators
             apiURL: {
                 FLO: ['https://livenet.flocha.in/', 'https://flosight.duckdns.org/'],
                 FLO_TEST: ['https://testnet-flosight.duckdns.org/', 'https://testnet.flocha.in/']
@@ -24,17 +24,19 @@
             sendAmt: 0.001,
             fee: 0.0005,
 
-            //Required for Supernode operations
+            // Required for Supernode operations
             SNStorageID: "FNaN9McoBAEFUjkRmNQRYLmBF8SpS7Tgfk",
             supernodes: {}, //each supnernode must be stored as floID : {uri:<uri>,pubKey:<publicKey>}
 
-            //for cloud apps
+            // for cloud apps
             subAdmins: [],
             application: "TEST_MODE",
             appObjects: {},
             generalData: {},
             lastVC: {}
         }
+
+        const spinner=document.createElement("template");spinner.innerHTML='\n<style>     \n*{\n    padding: 0;\n    margin: 0;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n}\n:host{\n    --accent-color: #4d2588;\n}\n.loader {\n    height: 1.6rem;\n    width: 1.6rem;\n    stroke-width: 8;\n    overflow: visible;\n    stroke: var(--accent-color);\n    fill: none;\n    stroke-dashoffset: 180;\n    stroke-dasharray: 180;\n    animation: load 2s infinite, spin 1s linear infinite;\n}\n@keyframes load {\n    50% {\n        stroke-dashoffset: 0;\n    }\n    100%{\n        stroke-dashoffset: -180;\n    }\n}\n\n@keyframes spin {\n    100% {\n        transform: rotate(360deg);\n    }\n}\n</style>\n<svg viewBox="0 0 64 64" class="loader"><circle cx="32" cy="32" r="32" /></svg>\n\n';class SquareLoader extends HTMLElement{constructor(){super(),this.attachShadow({mode:"open"}).append(spinner.content.cloneNode(!0))}}window.customElements.define("sm-spinner",SquareLoader);
     </script>
     <script id="onLoadStartUp">
         function onLoadStartUp() {
@@ -43,9 +45,51 @@
             //floDapps.setCustomPrivKeyInput( () => { FUNCTION BODY *must resolve private key* } )
 
             floDapps.launchStartUp().then(result => {
-                console.log(result)
-                alert(`Welcome FLO_ID: ${myFloID}`)
+                console.log(result) 
+                console.log(`Welcome FLO_ID: ${myFloID}`) 
                 //App functions....
+
+                // Load production valuation 
+                /*floCloudAPI.requestGeneralData("production_valuation").then(result => {
+                    production_valuation_data = floGlobals.generalData["production_valuation|FKAEdnPfjXLHSYwrXQu377ugN4tXU7VGdf|TEST_MODE"]
+                    last_key = Object.keys(production_valuation_data)[Object.keys(production_valuation_data).length-1]
+                    production_valuation = JSON.parse(production_valuation_data[last_key]['message'])
+                    debugger
+                    document.getElementById('server_cost_value').innerText = `$${production_valuation['server_costs']}`
+                    document.getElementById('marketing_cost_value').innerText = `$${production_valuation['marketing_costs']}`
+                    document.getElementById('people_cost_value').innerText = `$${production_valuation['people_charges']}`
+                    document.getElementById('total_valuation_value').innerText = `$${production_valuation['server_costs'] + production_valuation['marketing_costs'] + production_valuation['people_charges']}`
+                */
+                
+                // Overview - no_of_tokens_issued will come from ranchimallflo api and per_token_system_valuation will come from the cloud 
+                let overview_cloud_data = floCloudAPI.requestObjectData("overview")
+                // todo - change the api call once ranchimallflo api is updated properly 
+                let number_of_article_tokens = fetch("https://ranchimallflo.duckdns.org/")
+                Promise.all([overview_cloud_data, number_of_article_tokens]).then(result => {
+                    document.getElementById('no_of_tokens_issued').innerText = `$${floGlobals.appObjects["production_valuation"]["people_charges"]}`
+                    document.getElementById('per_token_system_valuation').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"]}`
+                })
+
+                floCloudAPI.requestObjectData("production_valuation").then(result => {
+                    document.getElementById('server_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"]}`
+                    document.getElementById('marketing_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["marketing_costs"]}`
+                    document.getElementById('people_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["people_charges"]}`
+                    document.getElementById('total_valuation_value').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"] + floGlobals.appObjects["production_valuation"]["marketing_costs"] + floGlobals.appObjects["production_valuation"]["people_charges"]}`
+                })
+
+                floCloudAPI.requestObjectData("consumption_valuation").then(result => {
+                    document.getElementById('server_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["server_costs"]}`
+                    document.getElementById('marketing_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["marketing_costs"]}`
+                    document.getElementById('people_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["people_charges"]}`
+                    document.getElementById('total_valuation_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["server_costs"] + floGlobals.appObjects["production_valuation"]["marketing_costs"] + floGlobals.appObjects["production_valuation"]["people_charges"]}`
+                })
+
+                // Ownership token data will some from RanchiMall Flo API 
+
+                // Reserve pool data will come from ranchimallfloapi(rupee#) and 
+
+                // Token conversion details will come from ranchimallflo-api 
+                
             }).catch(error => console.error(error))
         }
     </script>
@@ -141,20 +185,26 @@
             <sm-carousel>
                 <div class="card">
                     <h3>Total valuation</h3>
-                    <p>
-                        $6000
+                    <p id='total_valuation_value'>
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Server Costs</h3>
-                    <p>
-                        $120
+                    <p id='server_cost_value'>
+                        <sm-spinner></sm-spinner>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>People costs</h3>
+                    <p id='people_cost_value'>
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Marketing costs</h3>
-                    <p>
-                        $60
+                    <p id='marketing_cost_value'>
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
             </sm-carousel>

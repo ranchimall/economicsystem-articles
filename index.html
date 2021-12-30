@@ -64,25 +64,35 @@
                 // Overview - no_of_tokens_issued will come from ranchimallflo api and per_token_system_valuation will come from the cloud 
                 let overview_cloud_data = floCloudAPI.requestObjectData("overview")
                 // todo - change the api call once ranchimallflo api is updated properly 
-                let number_of_article_tokens = fetch("https://ranchimallflo.duckdns.org/")
+                /*let number_of_article_tokens = fetch("https://ranchimallflo.duckdns.org/")
                 Promise.all([overview_cloud_data, number_of_article_tokens]).then(result => {
                     document.getElementById('no_of_tokens_issued').innerText = `$${floGlobals.appObjects["production_valuation"]["people_charges"]}`
                     document.getElementById('per_token_system_valuation').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"]}`
+                })*/
+
+                floCloudAPI.requestObjectData("article_valuation_total").then(result => {
+
+                    document.getElementById('numberOf_tokens_issused').innerText = `$${floGlobals.appObjects["article_valuation_total"]["overview"]["numberOf_tokens_issued"]}`
+                    document.getElementById('per_token_systemValuation').innerText = `$${floGlobals.appObjects["article_valuation_total"]["overview"]["per_token_systemValuation"]}`
+                    document.getElementById('system_valuation').innerText = `$${floGlobals.appObjects["article_valuation_total"]["overview"]["numberOf_tokens_issued"] * floGlobals.appObjects["article_valuation_total"]["overview"]["per_token_systemValuation"]}`
+
+                    document.getElementById('server_cost_value').innerText = `$${floGlobals.appObjects["article_valuation_total"]["production_valuation"]["server_costs"]}`
+                    document.getElementById('marketing_cost_value').innerText = `$${floGlobals.appObjects["article_valuation_total"]["production_valuation"]["marketing_costs"]}`
+                    document.getElementById('people_cost_value').innerText = `$${floGlobals.appObjects["article_valuation_total"]["production_valuation"]["people_charges"]}`
+                    document.getElementById('total_valuation_value').innerText = `$${floGlobals.appObjects["article_valuation_total"]["production_valuation"]["server_costs"] + floGlobals.appObjects["article_valuation_total"]["production_valuation"]["marketing_costs"] + floGlobals.appObjects["article_valuation_total"]["production_valuation"]["people_charges"]}`
+                
+                    document.getElementById('valuation_per_unit_consumption').innerText = `$${floGlobals.appObjects["article_valuation_total"]["consumption_valuation"]["valuation_per_unit"]}`
+                    document.getElementById('total_numberOf_consumed_units').innerText = `$${floGlobals.appObjects["article_valuation_total"]["consumption_valuation"]["total_units_consumed"]}`
+                    document.getElementById('total_consumption_valuation').innerText = `${floGlobals.appObjects["article_valuation_total"]["consumption_valuation"]["valuation_per_unit"] * floGlobals.appObjects["article_valuation_total"]["consumption_valuation"]["total_units_consumed"]}`
+                
                 })
 
-                floCloudAPI.requestObjectData("production_valuation").then(result => {
-                    document.getElementById('server_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"]}`
-                    document.getElementById('marketing_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["marketing_costs"]}`
-                    document.getElementById('people_cost_value').innerText = `$${floGlobals.appObjects["production_valuation"]["people_charges"]}`
-                    document.getElementById('total_valuation_value').innerText = `$${floGlobals.appObjects["production_valuation"]["server_costs"] + floGlobals.appObjects["production_valuation"]["marketing_costs"] + floGlobals.appObjects["production_valuation"]["people_charges"]}`
-                })
-
-                floCloudAPI.requestObjectData("consumption_valuation").then(result => {
+                /*floCloudAPI.requestObjectData("consumption_valuation").then(result => {
                     document.getElementById('server_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["server_costs"]}`
                     document.getElementById('marketing_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["marketing_costs"]}`
                     document.getElementById('people_cost_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["people_charges"]}`
                     document.getElementById('total_valuation_value').innerText = `$${floGlobals.appObjects["consumption_valuation"]["server_costs"] + floGlobals.appObjects["production_valuation"]["marketing_costs"] + floGlobals.appObjects["production_valuation"]["people_charges"]}`
-                })
+                })*/
 
                 // Ownership token data will some from RanchiMall Flo API 
 
@@ -150,20 +160,20 @@
             <sm-carousel>
                 <div class="card">
                     <h3>System valuation</h3>
-                    <p>
-                        $5000
+                    <p id="system_valuation">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Number of tokens issued</h3>
-                    <p>
-                        1000
+                    <p id="numberOf_tokens_issused">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Per token system valuation</h3>
-                    <p>
-                        $5
+                    <p id="per_token_systemValuation">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
             </sm-carousel>
@@ -226,20 +236,20 @@
             <sm-carousel>
                 <div class="card">
                     <h3>Total Consumption valuation</h3>
-                    <p>
-                        $500
+                    <p id="total_consumption_valuation">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Valuation per unit consumption</h3>
-                    <p>
-                        $20
+                    <p id="valuation_per_unit_consumption">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
                 <div class="card">
                     <h3>Total number of units consumed</h3>
-                    <p>
-                        25
+                    <p id="total_numberOf_consumed_units">
+                        <sm-spinner></sm-spinner>
                     </p>
                 </div>
             </sm-carousel>
